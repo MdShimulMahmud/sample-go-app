@@ -1,20 +1,18 @@
-FROM golang:1.23.2 as base
+FROM golang:1.23.3-alpine3.20 as base
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY go.mod go.sum ./
 
 RUN go mod download
+COPY *.go ./
 
-COPY . .
 
-RUN go build -o main .
-
-FROM gcr.io/distroless/base
-
-COPY --from=base /app/main .
+# Build
+RUN CGO_ENABLED=0 GOOS=linux go build -o /sampleapp
 
 EXPOSE 8080
 
-# Command to run the application
-CMD ["./main"]
+# Run
+CMD ["/sampleapp"]
+
